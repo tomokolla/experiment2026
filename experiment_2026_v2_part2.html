@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>語彙学習実験（2回目）</title>
+
+  <!-- jsPsych 6.1.0 本体 -->
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@6.1.0/jspsych.js"></script>
+  <!-- プラグイン -->
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@6.1.0/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@6.1.0/plugins/jspsych-html-button-response.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@6.1.0/plugins/jspsych-survey-html-form.js"></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspsych@6.1.0/css/jspsych.css">
+
+  <style>
+    /* ── 全体背景 ── */
+    body, .jspsych-display-element {
+      background-color: black !important;
+      color: white;
+    }
+    /* ── 画像 ── */
+    img { display: block; margin: 8px auto; }
+    .inst-img  { width: 85%; max-height: 65vh; object-fit: contain; }
+    .learn-img { width: 65%; max-height: 50vh; object-fit: contain; }
+    /* ── ボタン ── */
+    .jspsych-btn {
+      background-color: #333 !important;
+      color: white !important;
+      border: 1px solid #888 !important;
+      margin: 6px;
+      padding: 8px 20px;
+    }
+    /* ── テキスト入力 ── */
+    input[type="text"], input[type="number"] {
+      background-color: #111;
+      color: white;
+      border: 1px solid #aaa;
+      font-size: 1.2em;
+      padding: 8px 16px;
+      width: 350px;
+      text-align: center;
+      display: block;
+      margin: 12px auto;
+    }
+    /* ── survey-html-form の送信ボタン ── */
+    .jspsych-survey-html-form input[type="submit"],
+    .jspsych-survey-html-form button[type="submit"] {
+      background-color: #333;
+      color: white;
+      border: 1px solid #888;
+      padding: 8px 24px;
+      cursor: pointer;
+      margin-top: 14px;
+      font-size: 1em;
+    }
+    /* ── 指示テキスト ── */
+    .key-hint {
+      font-size: 0.95em;
+      margin-top: 18px;
+      color: #ddd;
+    }
+    .key-hint strong { color: white; }
+  </style>
+</head>
+<body>
+<script>
+
+// ============================================================
+// 刺激データ（1回目と同じ15語）
+// ============================================================
+
+var MAIN_WORDS = [
+  {word_id:'V1S1', word:'frib',        test_word:'fr _ _',         test_image:'test_V1S1.png'},
+  {word_id:'V1S2', word:'glorp',       test_word:'gl _ _ p',       test_image:'test_V1S2.png'},
+  {word_id:'V2S1', word:'smorble',     test_word:'sm _ _ ble',     test_image:'test_V2S1.png'},
+  {word_id:'V3S1', word:'flindrocate', test_word:'fl _ _ drocate', test_image:'test_V3S1.png'},
+  {word_id:'V3S2', word:'threnditize', test_word:'thr _ _ ditize', test_image:'test_V3S2.png'},
+  {word_id:'A1S1', word:'cribble',    test_word:'cr _ _ ble',     test_image:'test_A1S1.png'},
+  {word_id:'A1S2', word:'fleng',      test_word:'fl _ _ g',       test_image:'test_A1S2.png'},
+  {word_id:'A2S1', word:'zibble',     test_word:'z _ _ ble',      test_image:'test_A2S1.png'},
+  {word_id:'A2S2', word:'blontish',   test_word:'bl _ _tish',     test_image:'test_A2S2.png'},
+  {word_id:'A3S1', word:'plonkical',  test_word:'pl _ _ kical',   test_image:'test_A3S1.png'},
+  {word_id:'N1S1', word:'zlitz',      test_word:'zl _ _ z',       test_image:'test_N1S1.png'},
+  {word_id:'N1S2', word:'flurp',      test_word:'fl _ _ p',       test_image:'test_N1S2.png'},
+  {word_id:'N2S1', word:'sprock',     test_word:'spr _ _ k',      test_image:'test_N2S1.png'},
+  {word_id:'N2S2', word:'flentity',   test_word:'fl _ _ tity',    test_image:'test_N2S2.png'},
+  {word_id:'N3S1', word:'soprotune',  test_word:'s _ _ rotune',   test_image:'test_N3S1.png'}
+];
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ============================================================
+// 実験状態変数
+// ============================================================
+var test_list  = [];
+var test_index = 0;
+
+// ============================================================
+// ヘルパー：教示画像 + スペースキー
+// ============================================================
+function inst_screen(img_src) {
+  return {
+    type: 'html-keyboard-response',
+    stimulus: '<img src="' + img_src + '" class="inst-img">',
+    choices: [' ']
+  };
+}
+
+// ============================================================
+// タイムライン構築
+// ============================================================
+var timeline = [];
+
+// ── 1. 前回の続きである旨の案内 ─────────────────────────────
+timeline.push({
+  type: 'html-keyboard-response',
+  stimulus:
+    '<div style="text-align:center;padding:40px 20px;">' +
+      '<h2 style="color:white;">前回の続きの調査です</h2>' +
+      '<p style="color:#ddd;margin-top:20px;">' +
+        '前回学習していただいた単語について，再度テストを行います。' +
+      '</p>' +
+      '<p class="key-hint">→ スペースキーで次へ進みます</p>' +
+    '</div>',
+  choices: [' ']
+});
+
+// ── 2. 参加者情報入力（1回目とのデータ照合用） ───────────────
+
+// 名前
+timeline.push({
+  type: 'survey-html-form',
+  html: '<p style="color:#ddd;font-size:1em;margin-bottom:10px;">前回と同じお名前を入力してください</p>' +
+        '<input type="text" name="participant_name" ' +
+        'placeholder="ここへ入力してください..." required autofocus>',
+  button_label: '次へ',
+  on_finish: function(d) {
+    var r = typeof d.responses === 'string' ? JSON.parse(d.responses) : d.responses;
+    jsPsych.data.addProperties({participant_name: r.participant_name || ''});
+  }
+});
+
+// メール
+timeline.push({
+  type: 'survey-html-form',
+  html: '<p style="color:#ddd;font-size:1em;margin-bottom:10px;">前回と同じメールアドレスを入力してください</p>' +
+        '<p style="color:yellow;font-size:0.8em;">＊ご注意＊テンキーは使えません</p>' +
+        '<input type="text" name="participant_mail" ' +
+        'placeholder="ここへ入力してください..." required autofocus>',
+  button_label: '次へ',
+  on_finish: function(d) {
+    var r = typeof d.responses === 'string' ? JSON.parse(d.responses) : d.responses;
+    jsPsych.data.addProperties({participant_mail: r.participant_mail || ''});
+  }
+});
+
+// ── 3. テスト教示 & テスト（ランダム順） ─────────────────────
+timeline.push(inst_screen('test_modified.PNG'));
+
+// テスト初期化
+timeline.push({
+  type: 'call-function',
+  func: function() {
+    test_list  = shuffle(MAIN_WORDS.slice());
+    test_index = 0;
+  }
+});
+
+// テスト 1 語ずつループ
+var test_trial = {
+  type: 'survey-html-form',
+  html: function() {
+    var w = test_list[test_index];
+    return '<img src="' + w.test_image + '" class="learn-img">' +
+           '<p style="color:#ddd;font-size:0.9em;margin-bottom:8px;">' +
+             '下線部分（２文字分）のスペルをキー入力し，単語を完成してください' +
+           '</p>' +
+           '<input type="text" name="test_answer" ' +
+             'placeholder="ここへ入力してください..." autofocus>' +
+           '<p style="color:#aaa;font-size:0.8em;margin-top:6px;">' +
+             '解答欄をクリックするとカーソルが表示されます' +
+           '</p>';
+  },
+  button_label: '次へ',
+  on_finish: function(d) {
+    var w = test_list[test_index];
+    var r = typeof d.responses === 'string' ? JSON.parse(d.responses) : d.responses;
+    d.word_id     = w.word_id;
+    d.word        = w.word;
+    d.test_word   = w.test_word;
+    d.test_answer = (r && r.test_answer) ? r.test_answer : '';
+    d.phase       = 'test_day2';
+    test_index++;
+  }
+};
+
+timeline.push({
+  timeline: [test_trial],
+  loop_function: function() { return test_index < test_list.length; }
+});
+
+// ── 4. 終了画面1：データ送信 ────────────────────────────────
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzEgeGRiy6856TYC05_BEM4GXCuwufCS_INheoPvJwpEfDTyHBP6xMTmaOfWm4fGfjspA/exec';
+
+timeline.push({
+  type: 'html-button-response',
+  stimulus:
+    '<div style="text-align:center;padding:40px 20px;">' +
+      '<h2 style="color:white;">ご協力ありがとうございました</h2>' +
+      '<p style="color:#ddd;margin-top:20px;">' +
+        '下のボタンを押してデータを送信してください。' +
+      '</p>' +
+      '<p id="send-status" style="color:yellow;margin-top:16px;font-size:0.95em;"></p>' +
+    '</div>',
+  choices: ['📤 データを送信する'],
+  button_html:
+    '<button class="jspsych-btn" ' +
+    'style="font-size:1.1em;padding:12px 28px;margin-top:10px;">%choice%</button>',
+  on_finish: function() {
+    var allData = jsPsych.data.get().values();
+    fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(allData)
+    }).then(function() {
+      var el = document.getElementById('send-status');
+      if (el) el.textContent = '✅ 送信完了しました。次の画面へお進みください。';
+    }).catch(function() {
+      var el = document.getElementById('send-status');
+      if (el) el.textContent = '⚠️ 送信に失敗しました。次の画面へお進みください。';
+    });
+  }
+});
+
+// ── 5. 終了画面2：制御焦点調査・語彙知識調査へ ──────────────
+timeline.push({
+  type: 'html-keyboard-response',
+  stimulus:
+    '<div style="text-align:center;padding:40px 20px;">' +
+      '<p style="color:#ddd;font-size:1em;">' +
+        '続けて，下のリンクより調査（制御焦点に関する質問・語彙知識調査，あわせて約15分程度）に進んでください。' +
+      '</p>' +
+      '<p style="margin-top:24px;">' +
+        '<a href="https://forms.gle/DNHxLhvBr1kCJWxW9" target="_blank" ' +
+           'style="color:lightblue;font-size:1.2em;">' +
+          '→ 調査（約15分程度）に進む（クリック）' +
+        '</a>' +
+      '</p>' +
+    '</div>',
+  choices: jsPsych.NO_KEYS
+});
+
+// ============================================================
+// 実行
+// ============================================================
+jsPsych.init({
+  timeline: timeline,
+  on_finish: function() {
+    // 実験終了（データ保存は終了画面1のボタンで実施済み）
+  }
+});
+
+</script>
+</body>
+</html>

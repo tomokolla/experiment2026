@@ -483,18 +483,21 @@ timeline.push({
   }
 });
 
-// ── 9. 終了画面2：語彙知識調査へ ────────────────────────────
+// ── 9. 終了画面2：操作チェックへ ────────────────────────────
+// TODO(ともこ): 下のURL（REPLACE_WITH_CHECK_FORM_URL）を，
+// 操作チェック2項目＋「教示プリントはA・Bどちらでしたか」の
+// Googleフォームを作成したら，そのURLに差し替えてください。
 timeline.push({
   type: 'html-keyboard-response',
   stimulus:
     '<div style="text-align:center;padding:40px 20px;">' +
       '<p style="color:#ddd;font-size:1em;">' +
-        '続けて，下のリンクより語彙知識調査（50問・約10分程度）に進んでください。' +
+        '続けて，下のリンクより簡単なアンケート（2〜3分程度）にお答えください。' +
       '</p>' +
       '<p style="margin-top:24px;">' +
-        '<a href="https://forms.gle/DNHxLhvBr1kCJWxW9" target="_blank" ' +
+        '<a href="REPLACE_WITH_CHECK_FORM_URL" target="_blank" ' +
            'style="color:lightblue;font-size:1.2em;">' +
-          '→ 語彙知識調査（50問・約10分程度）に進む（クリック）' +
+          '→ アンケート（2〜3分程度）に進む（クリック）' +
         '</a>' +
       '</p>' +
     '</div>',
