@@ -271,13 +271,15 @@ timeline.push({
     '担当者の指示に従って，自分がAタイプかBタイプかを確認し，' +
     '下のリンクから該当するフォームに入力してください。' +
     '</p>' +
+    '<div id="wait-screen-form-area">' +
     '<p style="margin-top:20px;">' +
     '<a href="' + FORM_URL_A + '" target="_blank" style="color:yellow;font-size:1.1em;margin-right:30px;">Aタイプはこちら</a>' +
     '<a href="' + FORM_URL_B + '" target="_blank" style="color:yellow;font-size:1.1em;">Bタイプはこちら</a>' +
     '</p>' +
     '<p style="font-size:0.95em;color:#ccc;margin-top:20px;">' +
     'フォームの入力が終わったら，このページに戻って下のボタンを押してください。' +
-    '</p>',
+    '</p>' +
+    '</div>',
   choices: ['学習を開始する'],
   button_html: '<button class="jspsych-btn" style="font-size:1.2em;padding:12px 28px;margin-top:24px;">%choice%</button>',
   on_load: function() {
@@ -285,6 +287,8 @@ timeline.push({
     if (!btnWrap) return;
     btnWrap.style.display = 'none';
     setTimeout(function() {
+      var formArea = document.querySelector('#wait-screen-form-area');
+      if (formArea) formArea.style.display = 'none';
       btnWrap.style.display = '';
     }, WAIT_SCREEN_LOCK_SEC * 1000);
   },
