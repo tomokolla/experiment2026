@@ -145,6 +145,11 @@ function inst_screen(img_src) {
 // ============================================================
 // タイムライン構築
 // ============================================================
+
+// ★要差し替え★ 想起課題用Googleフォームのリンク（Aタイプ／Bタイプ，別々のフォーム）
+var FORM_URL_A = 'https://forms.gle/vWTXRjWRePom7uwTA'; // Aタイプ（促進焦点）用フォーム
+var FORM_URL_B = 'https://forms.gle/Yr2og7nNPiQfpkCk6'; // Bタイプ（防止焦点）用フォーム
+
 var timeline = [];
 
 // ── 1. 教示画面 1, 2 ────────────────────────────────────────
@@ -279,23 +284,9 @@ timeline.push({
     var btnWrap = document.querySelector('#jspsych-html-button-response-button-0');
     if (!btnWrap) return;
     btnWrap.style.display = 'none';
-    var countdown = document.createElement('p');
-    countdown.id = 'wait-screen-countdown';
-    countdown.style.marginTop = '24px';
-    countdown.style.color = '#888';
-    var remaining = WAIT_SCREEN_LOCK_SEC;
-    countdown.textContent = 'あと ' + remaining + ' 秒でボタンが表示されます（フォーム入力を済ませてください）';
-    btnWrap.parentNode.insertBefore(countdown, btnWrap);
-    var timer = setInterval(function() {
-      remaining -= 1;
-      if (remaining <= 0) {
-        clearInterval(timer);
-        countdown.remove();
-        btnWrap.style.display = '';
-      } else {
-        countdown.textContent = 'あと ' + remaining + ' 秒でボタンが表示されます（フォーム入力を済ませてください）';
-      }
-    }, 1000);
+    setTimeout(function() {
+      btnWrap.style.display = '';
+    }, WAIT_SCREEN_LOCK_SEC * 1000);
   },
   on_finish: function(d) { d.phase = 'wait_screen'; }
 });
@@ -498,10 +489,6 @@ timeline.push({
 
 // ── 9. 終了画面1：データ送信 ────────────────────────────────
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbzEgeGRiy6856TYC05_BEM4GXCuwufCS_INheoPvJwpEfDTyHBP6xMTmaOfWm4fGfjspA/exec';
-
-// ★要差し替え★ 想起課題用Googleフォームのリンク（Aタイプ／Bタイプ，別々のフォーム）
-var FORM_URL_A = 'https://forms.gle/vWTXRjWRePom7uwTA'; // Aタイプ（促進焦点）用フォーム
-var FORM_URL_B = 'https://forms.gle/Yr2og7nNPiQfpkCk6'; // Bタイプ（防止焦点）用フォーム
 
 timeline.push({
   type: 'html-button-response',
