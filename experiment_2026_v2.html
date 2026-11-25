@@ -268,13 +268,13 @@ var WAIT_SCREEN_LOCK_SEC = 60; // ボタンが押せるようになるまでの�
 timeline.push({
   type: 'html-button-response',
   stimulus:
+    '<div id="wait-screen-content">' +
     '<p style="font-size:1.1em;line-height:1.8;">' +
     '操作練習は終了しました。<br>' +
     'ここで一旦，操作を停止してください。<br>' +
     '担当者の指示に従って，自分がAタイプかBタイプかを確認し，' +
     '下のリンクから該当するフォームに入力してください。' +
     '</p>' +
-    '<div id="wait-screen-form-area">' +
     '<p style="margin-top:20px;">' +
     '<a href="' + FORM_URL_A + '" target="_blank" style="color:yellow;font-size:1.1em;margin-right:30px;">Aタイプはこちら</a>' +
     '<a href="' + FORM_URL_B + '" target="_blank" style="color:yellow;font-size:1.1em;">Bタイプはこちら</a>' +
@@ -290,8 +290,8 @@ timeline.push({
     if (!btnWrap) return;
     btnWrap.style.display = 'none';
     setTimeout(function() {
-      var formArea = document.querySelector('#wait-screen-form-area');
-      if (formArea) formArea.style.display = 'none';
+      var content = document.querySelector('#wait-screen-content');
+      if (content) content.style.display = 'none';
       btnWrap.style.display = '';
     }, WAIT_SCREEN_LOCK_SEC * 1000);
   },
