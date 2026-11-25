@@ -255,10 +255,7 @@ timeline.push({
   }
 });
 
-// ── 5. 本試行前教示 ─────────────────────────────────────────
-timeline.push(inst_screen('gakusyu_v2.PNG'));
-
-// ── 5.5 待機画面（全員の操作を一旦停止：ここで紙面の想起課題・学習前教示を実施） ──
+// ── 5. 待機画面（全員の操作を一旦停止：ここで紙面の想起課題・学習前教示を実施） ──
 timeline.push({
   type: 'html-button-response',
   stimulus:
@@ -271,6 +268,9 @@ timeline.push({
   button_html: '<button class="jspsych-btn" style="font-size:1.2em;padding:12px 28px;margin-top:24px;">%choice%</button>',
   on_finish: function(d) { d.phase = 'wait_screen'; }
 });
+
+// ── 5.5 本試行前教示（待機・紙面課題の直後，本番開始の直前に提示） ──
+timeline.push(inst_screen('gakusyu_v2.PNG'));
 
 // 本試行 初期化
 timeline.push({
