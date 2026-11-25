@@ -256,6 +256,7 @@ timeline.push({
 });
 
 // ── 5. 待機画面（全員の操作を一旦停止：Googleフォームで想起課題・学習前教示を実施） ──
+var WAIT_SCREEN_LOCK_SEC = 60; // ボタンが押せるようになるまでの秒数（即クリック防止）
 timeline.push({
   type: 'html-button-response',
   stimulus:
@@ -266,14 +267,36 @@ timeline.push({
     '下のリンクから該当するフォームに入力してください。' +
     '</p>' +
     '<p style="margin-top:20px;">' +
-    '<a href="' + FORM_URL_A + '" target="_blank" style="font-size:1.1em;margin-right:30px;">Aタイプはこちら</a>' +
-    '<a href="' + FORM_URL_B + '" target="_blank" style="font-size:1.1em;">Bタイプはこちら</a>' +
+    '<a href="' + FORM_URL_A + '" target="_blank" style="color:yellow;font-size:1.1em;margin-right:30px;">Aタイプはこちら</a>' +
+    '<a href="' + FORM_URL_B + '" target="_blank" style="color:yellow;font-size:1.1em;">Bタイプはこちら</a>' +
     '</p>' +
     '<p style="font-size:0.95em;color:#ccc;margin-top:20px;">' +
     'フォームの入力が終わったら，このページに戻って下のボタンを押してください。' +
     '</p>',
   choices: ['学習を開始する'],
   button_html: '<button class="jspsych-btn" style="font-size:1.2em;padding:12px 28px;margin-top:24px;">%choice%</button>',
+  on_load: function() {
+    var btnWrap = document.querySelector('#jspsych-html-button-response-button-0');
+    if (!btnWrap) return;
+    btnWrap.style.display = 'none';
+    var countdown = document.createElement('p');
+    countdown.id = 'wait-screen-countdown';
+    countdown.style.marginTop = '24px';
+    countdown.style.color = '#888';
+    var remaining = WAIT_SCREEN_LOCK_SEC;
+    countdown.textContent = 'あと ' + remaining + ' 秒でボタンが表示されます（フォーム入力を済ませてください）';
+    btnWrap.parentNode.insertBefore(countdown, btnWrap);
+    var timer = setInterval(function() {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        countdown.remove();
+        btnWrap.style.display = '';
+      } else {
+        countdown.textContent = 'あと ' + remaining + ' 秒でボタンが表示されます（フォーム入力を済ませてください）';
+      }
+    }, 1000);
+  },
   on_finish: function(d) { d.phase = 'wait_screen'; }
 });
 
