@@ -294,7 +294,9 @@ var main_trial = {
     } else if (elapsed >= 358000 && elapsed < 365000) {
       msg = '<p style="color:yellow;margin-top:8px;">残り時間あと1分です。</p>';
     }
-    return '<img src="' + main_current.image_file + '" class="learn-img">' +
+    var remaining = MAIN_WORDS.length - main_learned.length;
+    return '<p class="progress-hint" style="color:#aaa;margin-bottom:6px;">残り ' + remaining + ' / ' + MAIN_WORDS.length + ' 語</p>' +
+           '<img src="' + main_current.image_file + '" class="learn-img">' +
            '<p class="key-hint">' +
            '学習完了：<strong>E キー</strong>　　　' +
            'もう一度学習する：<strong>スペースバー</strong>' +
